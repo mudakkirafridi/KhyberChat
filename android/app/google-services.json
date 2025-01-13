@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "788470607280",
+    "project_id": "e-commerce-app-11f78",
+    "storage_bucket": "e-commerce-app-11f78.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788470607280:android:79c50c4be1497b14797a75",
+        "android_client_info": {
+          "package_name": "com.example.e_commerce_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDKfvw9C4TxrINtEwMXhx9_-HM0RsCLHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788470607280:android:e2098ea3b09d2637797a75",
+        "android_client_info": {
+          "package_name": "com.example.khyber_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDKfvw9C4TxrINtEwMXhx9_-HM0RsCLHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
