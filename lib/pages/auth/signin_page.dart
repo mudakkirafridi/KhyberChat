@@ -66,7 +66,6 @@ class _SignInPageState extends State<SignInPage> {
                 onChanged: (val){
                   setState(() {
                     fullName = val;
-                    // for github checking
                   });
                 },
                 validator: (val){
