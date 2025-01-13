@@ -14,3 +14,9 @@ void nextScreenReplace(BuildContext context, Widget destination) {
     MaterialPageRoute(builder: (context) => destination),
   );
 }
+
+showSnackbar(context ,Color color ,String message){
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message), backgroundColor: color,duration: const Duration(seconds: 3),)
+  );
+}

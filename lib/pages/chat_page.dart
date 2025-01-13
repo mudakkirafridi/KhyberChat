@@ -75,15 +75,15 @@ class _ChatPageState extends State<ChatPage> {
                           color: Colors.grey.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 6,
-                          offset: Offset(0, 3),
+                          offset:const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: TextField(
                       controller: _controller,
-                      decoration: InputDecoration(
+                      decoration:const InputDecoration(
                         hintText: 'Type a message...',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        contentPadding:  EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         border: InputBorder.none,
                       ),
                     ),

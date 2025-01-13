@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khyber_chat/pages/auth/forgor_page.dart';
+import 'package:khyber_chat/services/auth_services.dart';
 import 'package:khyber_chat/widgets/widgets.dart';
 
 class SignInPage extends StatefulWidget {
@@ -10,16 +11,22 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-   final TextEditingController _emailController = TextEditingController();
+  
+ final AuthServices _authServices = AuthServices();
+
+ final TextEditingController _emailController = TextEditingController();
  final TextEditingController _passwordController = TextEditingController();
+ final TextEditingController _fullNameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
   String fullName = '';
+  
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.deepPurple,),) : Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -53,6 +60,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
               const SizedBox(height: 30),
               TextFormField(
+                controller: _fullNameController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.9),
@@ -76,6 +84,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
               const SizedBox(height: 20),
               TextFormField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.9),
@@ -102,6 +111,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
               const SizedBox(height: 20),
               TextFormField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
@@ -195,8 +205,22 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
   
-  void signInFun() {
+  void signInFun() async{
     if (formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+     await _authServices.signInUserWithEmailAndPassword(fullName,email,password).then((value){
+     if (value == true) {
+       // saving the shared prefrence state
+       
+     }else{
+      showSnackbar(context , Colors.red, value);
+      setState(() {
+        _isLoading = false;
+      });
+     }
+     });
       
     }
   }
