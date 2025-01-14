@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khyber_chat/helpers/helper_function.dart';
+import 'package:khyber_chat/pages/auth/forgor_page.dart';
 import 'package:khyber_chat/pages/auth/signin_page.dart';
 import 'package:khyber_chat/pages/home_page.dart';
 import 'package:khyber_chat/services/auth_services.dart';
@@ -131,7 +132,9 @@ class _LoginPageState extends State<LoginPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          nextScreen(context, const ForgotPage());
+                        },
                         child: const Text(
                           "Forgot Password?",
                           style: TextStyle(color: Colors.white70),

@@ -1,9 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khyber_chat/helpers/helper_function.dart';
 import 'package:khyber_chat/pages/auth/login_page.dart';
 import 'package:khyber_chat/pages/profile_page.dart';
 import 'package:khyber_chat/pages/search_page.dart';
 import 'package:khyber_chat/services/auth_services.dart';
+import 'package:khyber_chat/services/database_service.dart';
 import 'package:khyber_chat/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,9 +18,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _groupNameController = TextEditingController();
   String userName = '';
   String email = '';
   final AuthServices _authServices = AuthServices();
+  Stream? group;
 
   @override
   void initState() {
@@ -35,6 +41,14 @@ class _HomePageState extends State<HomePage> {
         userName = value ?? 'null';
       });
     });
+    // getting the list of snapshot in our stream
+    await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+        .getUserGroup()
+        .then((value) {
+      setState(() {
+        group = value;
+      });
+    });
   }
 
   @override
@@ -47,7 +61,9 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
               onPressed: () {
-                _authServices.signOut();
+                _authServices.signOut().then((value) {
+                  nextScreen(context, const LoginPage());
+                });
               },
               icon: const Icon(Icons.logout)),
           IconButton(
@@ -109,7 +125,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onTap: () {
                   // Add your onTap functionality here
-                  nextScreen(context,  ProfilePage(name: userName,email: email,));
+                  nextScreen(
+                      context,
+                      ProfilePage(
+                        name: userName,
+                        email: email,
+                      ));
                 },
               ),
               ListTile(
@@ -161,15 +182,129 @@ class _HomePageState extends State<HomePage> {
         ),
         child: const SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 60.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 30.0, vertical: 60.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [],
+              children: [
+                // groupList(),
+              ],
             ),
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.deepPurple,
+          onPressed: () {
+            popUpDialog(context);
+          },
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          )),
     );
   }
+
+  groupList() {
+    return StreamBuilder(
+      stream: group, // Stream<T> type
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator(); // Loading state
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}'); // Error state
+        } else if (snapshot.hasData) {
+          if (snapshot.data['group'] != null) {
+            if (snapshot.data['group'].length != 0) {
+              return const Text('Hello');
+            } else {
+              return noGroupWidget();
+            }
+          } else {
+            return noGroupWidget();
+          }
+        }
+        return const SizedBox.shrink(); // Default return statement
+      },
+    );
+  }
+
+  void popUpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          contentPadding: const EdgeInsets.all(20.0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Create a group',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _groupNameController,
+                decoration: InputDecoration(
+                  hintText: 'Group Name',
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 20.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(color: Colors.deepPurple),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(color: Colors.deepPurple),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide:
+                        const BorderSide(color: Colors.deepPurple, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                    ),
+                    child: const Text(
+                      'Create',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  noGroupWidget() {}
 }

@@ -12,21 +12,27 @@ class DatabaseService {
   final CollectionReference groupCollection =
       FirebaseFirestore.instance.collection('groups');
 
-
   // saving the user data
-  Future savingUserData(String fullName , String email)async{
+  Future savingUserData(String fullName, String email) async {
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "email": email,
       'groups': [],
       'profile': "",
-       'uid': uid
+      'uid': uid
     });
   }
 
   // getting user data
-  Future gettingUserData(String email)async{
-QuerySnapshot querySnapshot = await userCollection.where('email',isEqualTo: email).get();
-return querySnapshot;
+  Future gettingUserData(String email) async {
+    QuerySnapshot querySnapshot =
+        await userCollection.where('email', isEqualTo: email).get();
+    return querySnapshot;
   }
+
+
+ // get user group
+ getUserGroup()async{
+  return userCollection.doc(uid).snapshots();
+ }
 }
