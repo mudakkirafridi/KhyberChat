@@ -1,5 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:khyber_chat/helpers/helper_function.dart';
 import 'package:khyber_chat/pages/auth/forgor_page.dart';
+import 'package:khyber_chat/pages/home_page.dart';
 import 'package:khyber_chat/services/auth_services.dart';
 import 'package:khyber_chat/widgets/widgets.dart';
 
@@ -26,6 +30,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.deepPurple,),) : Container(
         width: double.infinity,
         height: double.infinity,
@@ -59,7 +64,11 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              TextFormField(
+              Form(
+                key: formKey,
+                child: Column(
+                children: [
+                 TextFormField(
                 controller: _fullNameController,
                 decoration: InputDecoration(
                   filled: true,
@@ -137,6 +146,8 @@ class _SignInPageState extends State<SignInPage> {
                       return null;
                     },
               ),
+                ],
+              )),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
@@ -210,10 +221,13 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         _isLoading = true;
       });
-     await _authServices.signInUserWithEmailAndPassword(fullName,email,password).then((value){
-     if (value == true) {
+     await _authServices.signInUserWithEmailAndPassword(fullName,email,password).then((value)async{
+     if (value == true){
        // saving the shared prefrence state
-       
+       await HelperFunction.saveUserLoggedInStatus(true);
+       await HelperFunction.saveUserEmailSf(email);
+       await HelperFunction.saveUserNameSf(fullName);
+       nextScreen(context, const HomePage());
      }else{
       showSnackbar(context , Colors.red, value);
       setState(() {

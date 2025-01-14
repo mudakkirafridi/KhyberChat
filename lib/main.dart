@@ -2,11 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:khyber_chat/firebase_options.dart';
 import 'package:khyber_chat/helpers/helper_function.dart';
-import 'package:khyber_chat/pages/auth/forgor_page.dart';
-import 'package:khyber_chat/pages/auth/signin_page.dart';
-import 'package:khyber_chat/pages/chat_page.dart';
-import 'package:khyber_chat/pages/home_page.dart';
 import 'package:khyber_chat/pages/auth/login_page.dart';
+import 'package:khyber_chat/pages/home_page.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +30,9 @@ class _MyAppState extends State<MyApp> {
   getUserLoggedInStatus()async{
     await HelperFunction.getUserLoggedInStatus().then((value){
       if (value != null) {
-        _isSignedIn = value;
+        setState(() {
+          _isSignedIn = value;
+        });
       }
     });
   }
@@ -51,7 +50,7 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: _isSignedIn ?  const HomePage() : const ChatPage(),
+      home: _isSignedIn ?  const HomePage() : const HomePage(),
     );
   }
 }
