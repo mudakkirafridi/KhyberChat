@@ -8,6 +8,7 @@ import 'package:khyber_chat/pages/profile_page.dart';
 import 'package:khyber_chat/pages/search_page.dart';
 import 'package:khyber_chat/services/auth_services.dart';
 import 'package:khyber_chat/services/database_service.dart';
+import 'package:khyber_chat/widgets/group_tile.dart';
 import 'package:khyber_chat/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   String email = '';
   final AuthServices _authServices = AuthServices();
   Stream? group;
+  bool _isLoading = false;
+  String groupName = '';
 
   @override
   void initState() {
@@ -30,6 +33,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  getId(String res){
+    return res.substring(0,res.indexOf("_"));
+  }
+
+  getName(String res){
+    return res.substring(res.indexOf("_")+1);
+  }
+  
   gettingUserData() async {
     await HelperFunction.getUserEmailFromSf().then((value) {
       setState(() {
@@ -180,7 +191,7 @@ class _HomePageState extends State<HomePage> {
             end: Alignment.bottomRight,
           ),
         ),
-        child: const SingleChildScrollView(
+        child:  SingleChildScrollView(
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 30.0, vertical: 60.0),
@@ -188,7 +199,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // groupList(),
+                groupList(),
               ],
             ),
           ),
@@ -208,27 +219,63 @@ class _HomePageState extends State<HomePage> {
 
   groupList() {
     return StreamBuilder(
-      stream: group, // Stream<T> type
-      builder: (BuildContext context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Loading state
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Error state
-        } else if (snapshot.hasData) {
-          if (snapshot.data['group'] != null) {
-            if (snapshot.data['group'].length != 0) {
-              return const Text('Hello');
+      stream: group,
+      builder: (context, AsyncSnapshot snapshot) {
+        // make some checks
+        if (snapshot.hasData) {
+          if (snapshot.data['groups'] != null) {
+            if (snapshot.data['groups'].length != 0) {
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: snapshot.data['groups'].length,
+                itemBuilder: (context,index){
+                  int reverseIndex = snapshot.data['groups'].length - index - 1;
+                return GroupTile(userName: snapshot.data["fullName"], groupId: getId(snapshot.data['groups'][reverseIndex]), groupName: getName(snapshot.data['groups'][reverseIndex]));
+              });
             } else {
               return noGroupWidget();
             }
           } else {
             return noGroupWidget();
           }
+        } else {
+          return Center(
+            child: CircularProgressIndicator(
+                color: Theme.of(context).primaryColor),
+          );
         }
-        return const SizedBox.shrink(); // Default return statement
       },
     );
   }
+
+
+  // groupList() {
+  //   return StreamBuilder(
+  //     stream: group, // Stream<T> type
+  //     builder: (BuildContext context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const CircularProgressIndicator(); // Loading state
+  //       } else if (snapshot.hasError) {
+  //         return Text('Error: ${snapshot.error}'); // Error state
+  //       } else if (snapshot.hasData) {
+  //         if (snapshot.data['group'] != null) {
+  //           if (snapshot.data['group'].length != 0) {
+  //             return groupList();
+  //           } else {
+  //             return noGroupWidget();
+  //           }
+  //         } else {
+  //           return noGroupWidget();
+  //         }
+  //       }
+  //       return const SizedBox(
+  //         child: Center(
+  //           child: Text('default return'),
+  //         ),
+  //       ); // Default return statement
+  //     },
+  //   );
+  // }
 
   void popUpDialog(BuildContext context) {
     showDialog(
@@ -242,12 +289,24 @@ class _HomePageState extends State<HomePage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Create a group',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              _isLoading == true
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.deepPurple,
+                      ),
+                    )
+                  : const Text(
+                      'Create a group',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
               const SizedBox(height: 20),
               TextField(
+                onChanged: (val) {
+                  setState(() {
+                    groupName = val;
+                  });
+                },
                 controller: _groupNameController,
                 decoration: InputDecoration(
                   hintText: 'Group Name',
@@ -287,7 +346,24 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      if (groupName != "") {
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        DatabaseService(
+                                uid: FirebaseAuth.instance.currentUser!.uid)
+                            .createGroup(
+                                userName,
+                                FirebaseAuth.instance.currentUser!.uid,
+                                groupName).whenComplete((){
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  Navigator.of(context).pop();
+                                  showSnackbar(context, Colors.green, "Group Created Successfully");
+                                });
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
@@ -306,5 +382,31 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  noGroupWidget() {}
+  noGroupWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+              onTap: () {
+                popUpDialog(context);
+              },
+              child: Icon(
+                Icons.add_circle,
+                size: 75,
+                color: Colors.grey[700],
+              )),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text(
+            'You Have Not Joined Any Group!',
+            textAlign: TextAlign.center,
+          )
+        ],
+      ),
+    );
+  }
 }

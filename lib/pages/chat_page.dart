@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String groupId, groupName , userName;
+  const ChatPage({super.key, required this.groupId, required this.groupName, required this.userName});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -26,7 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat Page'),
+        title:  Text('Chats Of ${widget.groupName.toUpperCase()}'),
         backgroundColor: Colors.deepPurple, // Matching color from previous example
       ),
       body: Column(
