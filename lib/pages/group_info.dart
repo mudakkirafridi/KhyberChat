@@ -116,7 +116,7 @@ String getName(String r){
           return const Center(child: Text('NO Members'),);
         }
       } else {
-        return const Center(child: CircularProgressIndicator(color: Colors.deepPurple,),)
+        return const Center(child: CircularProgressIndicator(color: Colors.deepPurple,),);
       }
     });
   }
