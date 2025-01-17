@@ -21,6 +21,11 @@ class _GroupInfoState extends State<GroupInfo> {
 String getName(String r){
   return r.substring(r.indexOf("_")+1);
 }
+
+ String getId(String res){
+  return res.substring(0,res.indexOf("_"));
+}
+
   @override
   void initState() {
     getMembers();
@@ -105,7 +110,7 @@ String getName(String r){
                       backgroundColor: Colors.deepPurple,
                       child: Text(getName(snapshot.data['members'][index]).substring(0,1).toUpperCase(),style: const TextStyle(fontSize: 15,color: Colors.white,fontWeight: FontWeight.bold),),
                     ),
-                    title: Text(getName(snapshot.data['members'][index])),
+                    title: Text(getId(snapshot.data['members'][index])),
                   ),
                 );
             });
