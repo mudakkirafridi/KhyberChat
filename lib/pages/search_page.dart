@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khyber_chat/helpers/helper_function.dart';
+import 'package:khyber_chat/pages/chat_page.dart';
 import 'package:khyber_chat/services/database_service.dart';
+import 'package:khyber_chat/widgets/widgets.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -130,8 +132,22 @@ class _SearchPageState extends State<SearchPage> {
       subtitle: Text("Admin: ${getName(admin)}"),
      title: Text(groupName,style: const TextStyle(fontWeight: FontWeight.bold),),
      trailing: InkWell(
-      onTap: (){
-
+      onTap: ()async{
+        await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid).toggleGroupJoin(groupId, userName, groupName);
+        if (isJoined) {
+          setState(() {
+            isJoined = !isJoined;
+          });
+          showSnackbar(context, Colors.green, 'Successfully Joined The Group');
+          Future.delayed(Duration(seconds: 2),(){
+            nextScreen(context, ChatPage(groupId: groupId, groupName: groupName, userName: userName));
+          });
+        } else {
+            setState(() {
+            isJoined = !isJoined;
+          });
+          showSnackbar(context, Colors.green, 'Left The Group ${groupName}');
+        }
       },
       child: isJoined ? Container(
         decoration: BoxDecoration(

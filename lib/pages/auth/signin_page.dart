@@ -138,10 +138,8 @@ class _SignInPageState extends State<SignInPage> {
                       });
                     },
                     validator: (val) {
-                      if (val == null ||
-                          !RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
-                              .hasMatch(val)) {
-                        return 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+                      if (val!.length < 6) {
+                        return "please Enter 6 Characters";
                       }
                       return null;
                     },

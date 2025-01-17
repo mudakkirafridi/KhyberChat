@@ -95,4 +95,40 @@ class DatabaseService {
     return false;
   }
  }
+
+ // toggling the group join/exit 
+ Future toggleGroupJoin(String groupId , String userName , String groupName)async{
+  DocumentReference userDocumentRefrence = userCollection.doc(uid);
+  DocumentReference groupDocumentReference = groupCollection.doc(groupId);
+
+  DocumentSnapshot documentSnapshot = await userDocumentRefrence.get();
+  List<dynamic> groups = await documentSnapshot['groups'];
+
+  // some conditions
+  if (groups.contains("${groupId}_$groupName")) {
+    await userDocumentRefrence.update({
+      "groups": FieldValue.arrayRemove(["${groupId}_$groupName"])
+    });
+    await groupDocumentReference.update({
+      "groups": FieldValue.arrayRemove(["${uid}_$userName"])
+    });
+  } else {
+    await userDocumentRefrence.update({
+      "groups": FieldValue.arrayUnion(["${groupId}_$groupName"])
+    });
+    await groupDocumentReference.update({
+      "groups": FieldValue.arrayUnion(["${uid}_$userName"])
+    });
+  }
+ }
+
+
+ sendMessage(String groupId , Map<String , dynamic> chatMessageData)async{
+  groupCollection.doc(groupId).collection("messages").add(chatMessageData);
+  groupCollection.doc(groupId).update({
+    "recentMessage": chatMessageData['message'],
+    "recentMessageSender": chatMessageData['sender'],
+    "recentMessageTime": chatMessageData["time"].toString()
+  });
+ }
 }
